@@ -1,6 +1,5 @@
-
-flatten_score = lambda rat_dic: [item for user in rat_dic
-                                 for item in rat_dic[user].values()]
+flatten_dict_score = lambda rat_dic: [item for user in rat_dic
+                                      for item in rat_dic[user].values()]
 
 
 def compute_rat_bias(rat_dict, user_size, item_size):
@@ -11,7 +10,7 @@ def compute_rat_bias(rat_dict, user_size, item_size):
     item_rat_dict = dict(zip(range(item_size)
                              , [[] for _ in range(item_size)]))
 
-    all_scores = flatten_score(rat_dict)
+    all_scores = flatten_dict_score(rat_dict)
     average_score = sum(all_scores)/len(all_scores)
 
     for user in rat_dict:

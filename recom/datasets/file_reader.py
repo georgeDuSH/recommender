@@ -1,5 +1,8 @@
+import sys, os
+sys.path.append(os.getcwd())
+
 def file_reader_movie_lens_rating(path='', sep='::'):
-    """ Read in rating dataset from movie lens
+    """ Read in rating datasets from movie lens
 
     :param path:
     :param sep:
@@ -22,7 +25,7 @@ def file_reader_movie_lens_rating(path='', sep='::'):
     return rats
 
 
-def obj_mapping(ratings):
+def mapping(ratings):
     """ Read in rating and transform into map
 
     :param rats:
@@ -59,7 +62,7 @@ def rating_train_test_parser(ratings, perc=0.2, test_filter=True):
     sep_counter = int(1/perc)
     rat_train_dict = dict()
     rat_test_dict = dict()
-    user2ix, _, item2ix, _ = obj_mapping(ratings)
+    user2ix, _, item2ix, _ = mapping(ratings)
 
     for ix, rat in enumerate(ratings):
         u, i, r = rat
@@ -84,5 +87,54 @@ def rating_train_test_parser(ratings, perc=0.2, test_filter=True):
 
     return rat_train_dict, rat_test_dict
 
+def load_ml_rating(path, sep, need_raw, need_split):
+    """ Load rating from movie lens datasets
 
+    :param path: str, path like
+        relative path of rating file
 
+    :param sep: str
+        separation comma of the file
+
+    :return: dict
+    """
+    ratings = file_reader_movie_lens_rating(path=path, sep=sep)
+    user2ix, ix2user, item2ix, ix2item = mapping(ratings)
+    n_user = len(user2ix.keys())
+    n_item = len(item2ix.keys())
+    rat_train_dict, rat_test_dict = rating_train_test_parser(ratings)
+
+    dataset = {
+        'n_user': n_user
+        , 'n_item': n_item
+        , 'user2ix': user2ix
+        , 'ix2user': ix2user
+        , 'item2ix': item2ix
+        , 'ix2item': ix2item
+    }
+
+    if need_raw:
+        dataset['raw'] = ratings
+
+    if need_split:
+        dataset['train_dict'] = rat_train_dict
+        dataset['test_dict'] = rat_test_dict
+
+    return dataset
+
+# suppose we load from root
+def load_ml_small_rating(path='./recom/datasets/ml-small/ratings.csv', need_raw=True, need_split=True):
+    return load_ml_rating(path=path, sep=',', need_raw=need_raw, need_split=need_split)
+
+def load_ml_1m_rating(path='./recom/datasets/ml-1m/ratings.dat', need_raw=True, need_split=True):
+    return load_ml_rating(path=path, sep='::', need_raw=need_raw, need_split=need_split)
+
+#
+# if __name__=='__main__':
+#     print(os.getcwd())
+#     data = load_ml_small_rating()
+#     print(len(data['ix2item']))
+#     print(len(data['ix2user']))
+#     data = load_ml_1m_rating()
+#     print(len(data['ix2item']))
+#     print(len(data['ix2user']))

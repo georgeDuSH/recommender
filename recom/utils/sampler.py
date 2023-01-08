@@ -1,8 +1,8 @@
-def pairwise_loader_even_prob(training_dict, item2ix, user_size, pos_size=1, neg_size=0, batch_size=128):
+def pairwise_loader_even_prob(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
     from random import choices, choice
     from torch.utils.data import DataLoader
 
-    all_item_set = set(item2ix.keys())
+    all_item_set = set(items)
 
     train_data = []
     for _ in range(user_size):
@@ -26,7 +26,7 @@ def pairwise_loader_even_prob(training_dict, item2ix, user_size, pos_size=1, neg
 
     return train_data_loader
 
-def list_loader_even_prob(training_dict, item2ix, user_size, pos_size=1, neg_size=0, batch_size=128):
+def list_loader_even_prob(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
     """ sample data from the
 
     :param training_dict:
@@ -41,7 +41,7 @@ def list_loader_even_prob(training_dict, item2ix, user_size, pos_size=1, neg_siz
     from torch import tensor
     from torch.utils.data import DataLoader
 
-    all_item_set = set(item2ix.keys())
+    all_item_set = set(items)
 
     train_data = []
     for _ in range(user_size):
@@ -66,3 +66,26 @@ def list_loader_even_prob(training_dict, item2ix, user_size, pos_size=1, neg_siz
     train_data_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
 
     return train_data_loader
+
+def mf_data_loader(training_dict, user_size=1, pos_size=1, batch_size=128):
+    """
+    :param training_dict: dict
+    :param user_size: int
+    :param pos_size: int
+    :param batch_size: int
+
+    :return: DataLoader with (user, item, rate)
+    """
+    from random import choices, choice
+    from torch.utils.data import DataLoader
+
+    train_data = []
+    for _ in range(user_size):
+        user = choice(list(training_dict.keys()))
+        pos_cands = list(training_dict[user].keys())
+        item_vec = choices(pos_cands, k=pos_size)
+        rate_vec = [training_dict[user][i] for i in item_vec]
+        user_vec = [user] * pos_size
+        train_data.extend(zip(user_vec, item_vec, rate_vec))
+
+    return DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
