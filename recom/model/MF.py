@@ -22,7 +22,7 @@ def RMSE(rate, preds):
     :return: rmse value of the predictions
     """
 
-    return ((rate - preds.view(-1))**2).mean()
+    return nn.MSELoss(preds, rate)
 
 
 class _MF(nn.Module):
@@ -111,8 +111,8 @@ class FunkSvd(_MF):
         self.embedding_user = nn.Embedding(n_user, k_dim)
         self.embedding_item = nn.Embedding(n_item, k_dim)
         # init param
-        nn.init.normal_(self.embedding_user.weight, mean=0, std=0)
-        nn.init.normal_(self.embedding_item.weight, mean=0, std=0)
+        nn.init.normal_(self.embedding_user.weight, mean=1, std=0)
+        nn.init.normal_(self.embedding_item.weight, mean=1, std=0)
 
     def pred(self, user, item):
         """ Predict rating for user and a set of item based on their latent factors/ embeddings.
