@@ -2,6 +2,7 @@ import sys, os
 sys.path.append(os.getcwd())
 
 import torch.nn as nn
+from torch import Tensor
 from recom.utils.sampler import mf_data_loader
 
 def RMSE(preds):
@@ -44,7 +45,7 @@ class _MF(nn.Module):
 
 class FunkSvd(_MF):
     def __init__(self, n_user, n_item, k_dim, mu_emb=0, sig_emb=1):
-        super(_MF, self).__init__()
+        super(FunkSvd, self).__init__()
         self.items = list(range(n_item))
         # embeddings of interest
         self.embedding_user = nn.Embedding(n_user, k_dim)
@@ -240,3 +241,5 @@ class FunkSvd(_MF):
             predict[user] = [candidate[ix] for ix in pred_ix]
 
         return predict
+
+

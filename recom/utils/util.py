@@ -27,3 +27,21 @@ def compute_rat_bias(rat_dict, user_size, item_size):
             item_bias[item] = sum(item_rat_dict[item])/N - average_score
 
     return average_score, user_bias, item_bias
+
+
+def rating_min_max_scalar(rat_dict, report_min_max=False):
+    flatten_dict = flatten_dict_score(rat_dict)
+    score_min = min(flatten_dict)
+    score_max = max(flatten_dict)
+
+    res = {}
+    for user in rat_dict:
+        res[user] = {}
+        for item in rat_dict[user]:
+            res[user][item] = (rat_dict[user][item]-score_min)/(score_max-score_min)
+
+    if not report_min_max:
+        return res
+    else:
+        return {'rating':res, 'min':score_min, 'max':score_max}
+

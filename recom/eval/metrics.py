@@ -17,6 +17,7 @@ def _f1(k, test, predict):
             tp += 1
     return 2*tp/(max_eval_size + len(test))
 
+
 def f1(k, test_dict, pred_dict):
     res = []
     for user in test_dict:
@@ -33,11 +34,13 @@ def _hr(k, test, pred):
     else:
         return 0
 
+
 def hit_rate(k, test_dict, pred_dict):
     res = []
     for user in test_dict:
         res.append(_hr(k, list(test_dict[user]), pred_dict[user]))
     return sum(res)/len(test_dict)
+
 
 def _map(k, test, pred):
     if isinstance(pred, dict):
@@ -55,6 +58,7 @@ def _map(k, test, pred):
 
     return s/max_eval_size # average precision
 
+
 def map(k, test_dict, pred_dict):
     res = []
     for user in test_dict:
@@ -64,7 +68,7 @@ def map(k, test_dict, pred_dict):
 
 
 def _dcg(score):
-    if len(score)==0:
+    if len(score) == 0:
         return 0
 
     from math import log
@@ -73,6 +77,7 @@ def _dcg(score):
         if score_i != 0:
             dcg += score_i / log(ix+2, 2)
     return dcg
+
 
 def _ndcg(k, test, pred, use_score):
     if isinstance(pred, dict) and use_score:
@@ -83,6 +88,7 @@ def _ndcg(k, test, pred, use_score):
                  for pred_i in pred[:k]]
 
     return _dcg(score)
+
 
 def ndcg(k, test, predict, use_score=True):
     res = []
