@@ -2,7 +2,7 @@ import sys, os
 sys.path.append(os.getcwd())
 
 # pack load
-from torch import LongTensor, Tensor, row_stack
+from torch import Tensor, row_stack
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -203,10 +203,15 @@ class BiasedFunkSvd(_MF):
             + self.global_bias
 
 
-class PMF(_MF):
-    """ Probabilistic Matrix Factorization
+""" Probabilistic Matrix Factorization Related Methods
         - [ref]: Mnih, A., & Salakhutdinov, R. R. (2007). Probabilistic matrix factorization. Advances in neural information processing systems, 20.
         - [url]: https://proceedings.neurips.cc/paper/2007/file/d7322ed717dedf1eb4e6e52a37ea7bcd-Paper.pdf
+"""
+class PMF(_MF):
+    """ Probabilistic Matrix Factorization
+        PMF has some normality assumptions over users' and items' latent factor,
+        seen as a normally distributed prior. By adding these priors into param,
+        we have the most classic pmf model.
     """
     def __init__(self, n_user, n_item, k_dim
                  , std_user=1, std_item=1):
@@ -237,10 +242,12 @@ class PMF(_MF):
         return (self.embedding_user(user) \
                 * self.embedding_item(item)).sum(1)
 
+
 class LogisticPMF(_MF):
-    """ Probabilistic Matrix Factorization
-        - [ref]: Mnih, A., & Salakhutdinov, R. R. (2007). Probabilistic matrix factorization. Advances in neural information processing systems, 20.
-        - [url]: https://proceedings.neurips.cc/paper/2007/file/d7322ed717dedf1eb4e6e52a37ea7bcd-Paper.pdf
+    """ Logistic Probabilistic Matrix Factorization
+        PMF has some normality assumptions over users' and items' latent factor,
+        seen as a normally distributed prior. By adding these priors into param,
+        we have the most classic pmf model.
     """
     def __init__(self, n_user, n_item, k_dim
                  , std_user=1, std_item=1):
@@ -364,10 +371,6 @@ class ConstrainedPMF(_MF):
     def forward(self, user_ix, user_emb, item):
         user_offset = self.user_offset(user_ix)
         embedding_user = user_offset + user_emb
-
-        # print(user_offset.is_cuda)
-        # print(embedding_user.is_cuda)
-        # print(self.embedding_item(item).is_cuda)
 
         return (embedding_user * self.embedding_item(item)).sum(1)
 
