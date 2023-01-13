@@ -1,3 +1,5 @@
+# test local
+
 flatten_dict_score = lambda rat_dic: [item for user in rat_dic
                                       for item in rat_dic[user].values()]
 
