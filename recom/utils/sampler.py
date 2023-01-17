@@ -1,4 +1,4 @@
-def pairwise_loader_even_prob(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
+def pairwise_loader(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
     from random import choices, choice
     from torch.utils.data import DataLoader
 
@@ -26,7 +26,7 @@ def pairwise_loader_even_prob(training_dict, items, user_size, pos_size=1, neg_s
 
     return train_data_loader
 
-def list_loader_even_prob(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
+def list_of_neg_loader(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
     """ sample data from the
 
     :param training_dict:
