@@ -5,6 +5,20 @@ flatten_dict_score = lambda rat_dic: [item for user in rat_dic
 
 
 def compute_rat_bias(rat_dict, user_size, item_size):
+    """ Compute biases with the given rating dict.
+
+        : return average_score: int
+            the global average score of the rating dict.
+
+        : return user_bias: dict(int:float)
+            each user's deviation of his average score from 
+            the global average score
+
+        : return item_bias: dict(int:float)
+            each item's deviation of its average score from 
+            the global average score
+            
+    """
     user_bias = dict(zip(range(user_size)
                          , [0]*user_size))
     item_bias = dict(zip(range(item_size)
@@ -32,6 +46,9 @@ def compute_rat_bias(rat_dict, user_size, item_size):
 
 
 def rating_min_max_scalar(rat_dict, report_min_max=False):
+    """ Scale scores inside a rating dict.
+        Scaling methods refers to min-max scaling
+    """
     flatten_dict = flatten_dict_score(rat_dict)
     score_min = min(flatten_dict)
     score_max = max(flatten_dict)
@@ -47,3 +64,18 @@ def rating_min_max_scalar(rat_dict, report_min_max=False):
     else:
         return {'rating':res, 'min':score_min, 'max':score_max}
 
+
+def tensorize(*args):
+    """ Transform args into list of LongTensors for indexing
+    """
+    from torch import LongTensor
+    res = []
+    for item in args:
+        if isinstance(item, int): 
+            res.append(LongTensor([item]))
+        if isinstance(item, list):
+            res.append(LongTensor(item))
+        else:
+            res.append(item)
+
+    return res
