@@ -21,4 +21,7 @@ Models here mainly focus on classic matrix factorization, or latent factor model
 
 ### 2.2 Pairwise Ranking based Model
 - **`BPR`**: Rendle, S., Freudenthaler, C., Gantner, Z., & Schmidt-Thieme, L. (2012). BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618.
-  - BPR
+
+### 2.3 Auto Encoder based 
+- **`User-based AutoEncoder`**, **`Item-based AutoEncoder`**: Sedhain, S., Menon, A. K., Sanner, S., & Xie, L. (2015, May). Autorec: Autoencoders meet collaborative filtering. In Proceedings of the 24th international conference on World Wide Web (pp. 111-112).
+  - Recommendation based on deep learning, with masked training only for observed inputs via MLP with encoder-decoder-structure.
