@@ -1,5 +1,6 @@
 # Recommendation Algo Notes
 
+
 ## 1 Background
 The repository contains models in personalized recommendation
     , with simple implementation with PyTorch
@@ -7,21 +8,27 @@ The repository contains models in personalized recommendation
 
 Detailed notes on models are available in my Notion attached.
 
-## 2 Models Covered
-### 2.1 Matrix Factorization based 
-Models here mainly focus on classic matrix factorization, or latent factor models.
 
+## 2 Requirements
+pytorch >= 1.10.0
+numpy >= 1.22.3
+
+
+## 3 Models Covered
+### 3.1 Matrix Factorization based 
 - **`Funk SVD`**, **`Biased SVD`**: Koren, Y., Bell, R., & Volinsky, C. (2009). Matrix factorization techniques for recommender systems. Computer, 42(8), 30-37.
-  - <u>Funk SVD</u> model users and items into latent vectors, and estimate rating via inner product of each. Minimizing RMSE between estimated ratings and observed ones to fit the model.
-  - On the top of that, <u>biased SVD</u> add user, item, and global bias, performing better on RMSE on testing items.
+  - `Funk SVD` model users and items into latent vectors, and estimate rating via their inner product. Minimizing RMSE between estimated and observed ratings to achieve optimization.
+  - `biased SVD` add user, item, and global bias over Funk SVD.
  
 - **`PMF`**, **`Logistic PMF`**, **`Constrained PMF`**: Mnih, A., & Salakhutdinov, R. R. (2007). Probabilistic matrix factorization. Advances in neural information processing systems, 20.
-  - <u>PMF</u> add priors over FunkSVD, supposing latent vectors are normally distributed.
-  - <u>Logistic PMF</u> treats 
+  - `PMF` add normal priors over FunkSVD, assuming latent vectors are normally distributed.
+  - `Logistic PMF` treats the inner product as score, and further project that score with sigmoid function to approximate the sclared ground truth.
+  - `Constrained PMF`
 
-### 2.2 Pairwise Ranking based Model
+### 3.2 Ranking based Model
 - **`BPR`**: Rendle, S., Freudenthaler, C., Gantner, Z., & Schmidt-Thieme, L. (2012). BPR: Bayesian personalized ranking from implicit feedback. arXiv preprint arXiv:1205.2618.
 
-### 2.3 Auto Encoder based 
+### 3.3 Deep Neural Network based
 - **`User-based AutoEncoder`**, **`Item-based AutoEncoder`**: Sedhain, S., Menon, A. K., Sanner, S., & Xie, L. (2015, May). Autorec: Autoencoders meet collaborative filtering. In Proceedings of the 24th international conference on World Wide Web (pp. 111-112).
-  - Recommendation based on deep learning, with masked training only for observed inputs via MLP with encoder-decoder-structure.
+  - `User-based AutoEncoder` and `Item-based AutoEncoder` resembles each other. The only difference lies in rating vector from which viewpoint the modle tries to restore from the paritally observed rating vector via encoder-decoder structure.
+  

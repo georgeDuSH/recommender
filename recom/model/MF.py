@@ -185,16 +185,6 @@ class BiasedFunkSvd(_MF):
             + self.global_bias
 
     def forward(self, user, item):
-        """ Predict rating for user and a set of item based on their latent factors/ embeddings.
-
-        :param user: int, list, or tensor
-            The index of user(s) of interest.
-
-        :param item: int, list, or tensor
-            The index of item(s) of interest
-
-        :return: prediction of score
-        """
         # dot product + bias + deviation
         return (self.embedding_user(user) \
                 * self.embedding_item(item)).sum(1) \

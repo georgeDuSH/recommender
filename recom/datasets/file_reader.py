@@ -87,6 +87,7 @@ def rating_train_test_parser(ratings, perc=0.2, test_filter=True):
 
     return rat_train_dict, rat_test_dict
 
+
 def load_ml_rating(path, sep, need_raw, need_split):
     """ Load rating from movie lens datasets
 
