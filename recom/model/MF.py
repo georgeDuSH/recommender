@@ -8,32 +8,51 @@ import torch.nn.functional as F
 
 # local load
 from recom.utils.sampler import mf_data_loader
-from recom.utils.util import rating_min_max_scalar
+from recom.utils.util import rating_min_max_scalar, rating_vectorize
 
 
-def RMSE(rate, preds):
-    """ RMSE loss
-        Mainly for evaluating the MF model
-
-    :param rate: tensor of original rating
-
-    :param preds: tensor of predictions
-
-    :return: rmse value of the predictions
+def SE(input:Tensor, target:Tensor):
+    """ Squared error (SE) for two tensor.
+        SE serves as the major loss evaluation metric for MF model.
     """
+    return (input-target)**2
 
-    return nn.MSELoss(preds, rate)
+
+def maskedSE(input:Tensor, target:Tensor):
+    """ Compute SE between two tensors only on those have values.
+
+        Usage: 
+
+        >>> input =  Tensor([0, 1, 1, 1, 1])
+        >>> target = Tensor([0, 1, 0, 2, 3])
+
+        >>> maskedSE(input, target) # do not compute value on the thrid element
+        
+        tensor([0, 0, 0, 1, 4]) 
+
+    """
+    # Compute squared error for testing set
+    mask = (target!=0)
+
+    return ((input[mask]-target[mask])**2)
 
 
 class _MF(nn.Module):
     """ Base class of Matrix Factorization.
         Latent factor based model for recommendation.
     """
-    def __init__(self, n_user, n_item, k_dim):
+    def __init__(self, n_user, n_item):
         super(_MF, self).__init__()
+        self.n_user = n_user
+        self.n_item = n_item
 
-    def pred(self, user, item):
+    def pred(self, ):
         """ Predict rating for user and a set of item based on their latent factors/ embeddings.
+        """
+        pass
+
+    def pred_all(self, ):
+        """ Estimate the whole rating matrix.
         """
         pass
 
@@ -43,26 +62,33 @@ class _MF(nn.Module):
         pass
 
     def fit(self, train_dict, opt_fn
-            , batch_size=128
-            , n_epochs=128
-            , user_per_ep=128, item_per_ep=32
-            , report_interval=10, use_cuda=False):
+            , n_epochs=128 , batch_size=128     # training                 
+            , method='all', user_per_ep=None, item_per_ep=None # sampling
+            , report_interval=10                # train reporting
+            , report_test=False, test_dict=None # testing 
+            , use_cuda=False):
+
+        assert method in ['all', 'sample'], f'Invalid method {method}'
 
         import time
         from torch import autograd, LongTensor, device
+        from numpy import sqrt, mean
 
         if use_cuda:
             compute_device = device('cuda')
             self.cuda()
+            test_mat = rating_vectorize(test_dict, self.n_user, self.n_item) if report_test else None
         else:
             compute_device = device('cpu')
 
-        losses = []
+        train_loss_by_ep = []
+        test_rmse_by_ep = [] if report_test else None
 
         t0 = time.time()
         for epoch in range(n_epochs):
             train_data = mf_data_loader(train_dict, user_per_ep, item_per_ep, batch_size)
 
+            ep_loss = []
             for i, batch in enumerate(train_data):
                 user, item, rate = batch
 
@@ -71,21 +97,33 @@ class _MF(nn.Module):
                 # variablize
                 user = autograd.Variable(LongTensor(user)).to(compute_device)
                 item = autograd.Variable(LongTensor(item)).to(compute_device)
-                rate = autograd.Variable(rate).to(compute_device)
+                score = autograd.Variable(rate).to(compute_device)
 
                 preds = self(user, item)
-                loss = RMSE(rate, preds)
+                loss = SE(input=preds, target=score)
 
-                loss.backward()
+                loss.mean().backward()
                 opt_fn.step()
-                losses.append(loss.data.to(compute_device).tolist())
+                ep_loss.extend(loss.data.to(compute_device).tolist())
+
+            train_loss_by_ep.append(sqrt(mean(ep_loss)))
+
+            # test
+            if report_test:
+                preds = self.pred_all()
+                test_rmse = maskedSE(input=preds, target=test_mat)
+                test_rmse_by_ep.append(test_rmse.data.to(compute_device).tolist())
+
             if report_interval > 0 \
                     and ((epoch+1) % report_interval == 0):
                 t1=time.time()
-                print(f'Epoch: {epoch+1}, Time: {round(t1-t0,2)}, /Average loss {round(sum(losses[-report_interval:])/report_interval, 5)}')
+                print(f'Epoch: {epoch+1}, Time: {round(t1-t0,2)}, /Average loss {round(sum(train_loss_by_ep[-report_interval:])/report_interval, 5)}')
+                if report_test:
+                    print(f'\t\t\t/Average test loss {round(sum(test_rmse_by_ep[-report_interval:])/report_interval, 5)}')
                 t0=time.time()
 
-        self.last_train_loss = losses
+        self.last_train_loss = train_loss_by_ep
+        self.last_test_rmse = test_rmse_by_ep
 
         return self
 

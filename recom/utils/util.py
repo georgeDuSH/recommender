@@ -79,3 +79,20 @@ def tensorize(*args):
             res.append(item)
 
     return res
+
+
+def rating_vectorize(rat_dict, n_user, n_item, implicit=False):
+    # transform dictionary into matrix
+    from torch import zeros
+
+    rat_mat = zeros(n_user, n_item)
+
+    if not implicit:
+        for u in rat_dict:
+            for i in rat_dict[u]:
+                rat_mat[u, i] = rat_dict[u][i]
+    else:
+        for u in rat_dict:
+            for i in rat_dict[u]:
+                rat_mat[u, i] = 1
+    return rat_mat

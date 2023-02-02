@@ -26,8 +26,11 @@ def pairwise_loader(training_dict, items, user_size, pos_size=1, neg_size=0, bat
 
     return train_data_loader
 
+
 def list_of_neg_loader(training_dict, items, user_size, pos_size=1, neg_size=0, batch_size=128):
-    """ sample data from the
+    """ Sample/ Load data with negative part as list.
+        Triplet includes:
+            <user, positive_item, [negative_item0, negative_item1, ...]>
 
     :param training_dict:
     :param items:
@@ -35,8 +38,9 @@ def list_of_neg_loader(training_dict, items, user_size, pos_size=1, neg_size=0, 
     :param pos_size:
     :param neg_size:
     :param batch_size:
-    :return:
+    :return: DataLoader
     """
+
     from random import choices, choice
     from torch import tensor
     from torch.utils.data import DataLoader
@@ -67,9 +71,14 @@ def list_of_neg_loader(training_dict, items, user_size, pos_size=1, neg_size=0, 
 
     return train_data_loader
 
-def mf_data_loader(training_dict, user_size=1, pos_size=1, batch_size=128):
-    """
+
+def mf_data_loader(training_dict, negative_sampling=False
+                   , user_size=256, pos_size=64
+                   , batch_size=128):
+    """ Sample/ Load data for MF.
+
     :param training_dict: dict
+    :param negative_sampling: bool
     :param user_size: int
     :param pos_size: int
     :param batch_size: int
@@ -80,12 +89,21 @@ def mf_data_loader(training_dict, user_size=1, pos_size=1, batch_size=128):
     from torch.utils.data import DataLoader
 
     train_data = []
-    for _ in range(user_size):
-        user = choice(list(training_dict.keys()))
-        pos_cands = list(training_dict[user].keys())
-        item_vec = choices(pos_cands, k=pos_size)
-        rate_vec = [training_dict[user][i] for i in item_vec]
-        user_vec = [user] * pos_size
-        train_data.extend(zip(user_vec, item_vec, rate_vec))
+    if not negative_sampling:
+        for user in training_dict:
+            for item in training_dict[user]:
+                train_data.append([user, item, training_dict[user][item]])
+
+    else:
+        for _ in range(user_size):
+            user = choice(list(training_dict.keys()))
+            pos_cands = list(training_dict[user].keys())
+            item_vec = choices(pos_cands, k=pos_size)
+            rate_vec = [training_dict[user][i] for i in item_vec]
+            user_vec = [user] * pos_size
+            train_data.extend(zip(user_vec, item_vec, rate_vec))
 
     return DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True)
+
+
+
