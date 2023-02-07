@@ -1,12 +1,13 @@
 
-def generate_testing_candidates(rating_train, items):
-    items_set = set(list(items.keys()))
-    testing_cand = {}
+def generate_testing_candidates(rating_train, n_item):
+    items = list(range(n_item))
 
-    for user in rating_train:
-        testing_cand[user] = list(items_set-set(rating_train[user].keys()))
-
+    testing_cand = {
+        u:list(set(items)-set(rating_train[u].keys()))
+        for u in rating_train
+    }
     return testing_cand
+
 
 def predict_recommendation(model, test_cands):
     from torch import argsort
