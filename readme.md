@@ -31,4 +31,5 @@ numpy >= 1.22.3
 ### 3.3 Deep Neural Network based
 - **`User-based AutoEncoder`**, **`Item-based AutoEncoder`**: Sedhain, S., Menon, A. K., Sanner, S., & Xie, L. (2015, May). Autorec: Autoencoders meet collaborative filtering. In Proceedings of the 24th international conference on World Wide Web (pp. 111-112).
   - `User-based AutoEncoder` and `Item-based AutoEncoder` resembles each other. The only difference lies in rating vector from which viewpoint the modle tries to restore from the paritally observed rating vector via encoder-decoder structure.
-  
+-  **`NeuMF`**: He, X., Liao, L., Zhang, H., Nie, L., Hu, X., & Chua, T. S. (2017, April). Neural collaborative filtering. In Proceedings of the 26th international conference on world wide web (pp. 173-182).
+   - **`NeuMF`**: Stands for Neural Matrix Factorization, a fusion architecture of `GMF` (Generalized Matrix Factorization) and `MLP` (Multiple-Layer Perceptron).
