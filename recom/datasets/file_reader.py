@@ -47,7 +47,9 @@ def file_reader_movie_lens_rating(path='', sep='::', time_ord=False):
             f_line = f.readline()
 
         last_user_hist.append([user, item, rating, timestamp]) # add last line
-
+        sorted_rat = sorted(last_user_hist, key=lambda x: x[-1])
+        rats.extend([record for record in sorted_rat])
+        
     return rats
 
 
@@ -194,6 +196,46 @@ def load_ml_1m_rating(path='./recom/datasets/ml-1m/ratings.dat'
     return load_ml_rating(path=path, sep='::'
                           , time_ord=time_ord, test_perc=test_perc
                           , need_raw=need_raw, need_split=need_split, test_filter=test_filter)
+
+
+def load_movie_genres(path, sep=','):
+
+    f = open(file=path, mode='r', encoding='utf-8')
+
+    if sep==',':
+        f.readline() # skip header
+    genres = {'g_base':dict(), 'g_set':set(), 'g2ix':dict(), 'ix2g':dict(), 'g_vec':dict()}
+    f_line = f.readline()
+
+    while True:
+        if not f_line:
+            break
+        # parse
+        raw = f_line.strip().split(sep)
+        # add genre to dict
+        genres['g_base'][raw[0]] = raw[-1]
+        # add to set
+        for g in raw[-1].split('|'):
+            genres['g_set'].add(g)
+        f_line = f.readline()
+
+    # vectorize
+    genres['g_set'] = sorted(list(genres['g_set']))
+    genres['g2ix'] = dict(zip(genres['g_set'], range(len(genres['g_set']))))
+    genres['ix2g'] = dict(zip(range(len(genres['g_set'])), genres['g_set']))
+    
+    zero_vec = [0 for _ in range(len(genres['g_set']))]
+    
+    for movie in genres['g_base']:
+        genre_vec = zero_vec[:]
+        for g in genres['g_base'][movie].split('|'):
+            if g != '(no genres listed)':
+                genre_vec[genres['g2ix'][g]] = 1
+        # overwrite
+        genres['g_vec'][movie] = genre_vec
+
+    return genres
+
 
 #
 # if __name__=='__main__':
