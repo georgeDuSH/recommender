@@ -11,6 +11,7 @@ Detailed notes on models are available in my Notion attached.
 
 ## 2 Requirements
 pytorch >= 1.10.0
+
 numpy >= 1.22.3
 
 
@@ -33,3 +34,11 @@ numpy >= 1.22.3
   - `User-based AutoEncoder` and `Item-based AutoEncoder` resembles each other. The only difference lies in rating vector from which viewpoint the modle tries to restore from the paritally observed rating vector via encoder-decoder structure.
 -  **`NeuMF`**: He, X., Liao, L., Zhang, H., Nie, L., Hu, X., & Chua, T. S. (2017, April). Neural collaborative filtering. In Proceedings of the 26th international conference on world wide web (pp. 173-182).
    - **`NeuMF`**: Stands for Neural Matrix Factorization, a fusion architecture of `GMF` (Generalized Matrix Factorization) and `MLP` (Multiple-Layer Perceptron).
+
+### 3.4 Factorization Machine Based
+- **`FM`**: Rendle, S. (2010, December). Factorization machines. In 2010 IEEE International conference on data mining (pp. 995-1000). IEEE.
+  - `FM` extend linear models' abilities to do interaction with very high computation efficiency.
+- **`NeuFM`**: He, X., & Chua, T. S. (2017, August). Neural factorization machines for sparse predictive analytics. In Proceedings of the 40th International ACM SIGIR conference on Research and Development in Information Retrieval (pp. 355-364).
+  - `NeuFM` add MLP on the interaction part of `FM` to increase the capability to capture high-order pattern among data.
+- **`DeepFM`**: Guo, H., Tang, R., Ye, Y., Li, Z., & He, X. (2017). DeepFM: a factorization-machine based neural network for CTR prediction. arXiv preprint arXiv:1703.04247.
+  - Inspired by the architechture of Wide&Deep, `DeepFM` extend deep neural network models' talents to capture both low-order and high-order trend. 
